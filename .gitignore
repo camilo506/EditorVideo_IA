@@ -1,0 +1,17 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+*.wav
+*.mp3
+output/
+.env
+desktop/**/bin/
+desktop/**/obj/
+desktop/**/.vs/

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edite_ia"
+version = "0.1.0"
+description = "A partir de un video largo, detecta momentos relevantes y exporta clips verticales para redes."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "faster-whisper>=1.0.3",
+  "librosa>=0.10.1",
+  "numpy>=1.24",
+  "soundfile>=0.12",
+  "scipy>=1.11",
+  "fastapi>=0.109",
+  "uvicorn[standard]>=0.27",
+  "pydantic>=2.5",
+]
+
+[project.scripts]
+edite-ia = "edite_ia.cli:main"
+edite-ia-api = "edite_ia.api:run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"

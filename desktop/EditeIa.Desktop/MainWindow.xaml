@@ -1,0 +1,584 @@
+﻿<Window x:Class="EditeIa.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EditeIa.Desktop"
+        mc:Ignorable="d"
+        Title="edite_ia"
+        Height="780"
+        Width="1180"
+        MinWidth="640"
+        MinHeight="480"
+        SizeChanged="MainWindow_SizeChanged"
+        Background="{StaticResource Brush.WindowBg}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Barra superior -->
+        <Border Grid.Row="0"
+                Background="{StaticResource Brush.PanelRaised}"
+                BorderBrush="{StaticResource Brush.BorderSubtle}"
+                BorderThickness="0,0,0,1"
+                Padding="20,0">
+            <DockPanel LastChildFill="True" VerticalAlignment="Center">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="edite_ia"
+                               FontSize="17"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource Brush.TextPrimary}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock x:Name="VideoTitleText"
+                           Margin="14,0,12,0"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           Foreground="{StaticResource Brush.TextSecondary}"
+                           TextTrimming="CharacterEllipsis" />
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <!-- Pantalla inicial -->
+            <Border x:Name="LandingPanel" Background="{StaticResource Brush.WindowBg}">
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            MaxWidth="420">
+                    <Border Width="80"
+                            Height="80"
+                            CornerRadius="40"
+                            Background="#2A2A38"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,22">
+                        <TextBlock Text="⬆"
+                                   FontSize="32"
+                                   Foreground="{StaticResource Brush.TextPrimary}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="Carga un video para empezar"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource Brush.TextPrimary}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,0,0,8" />
+                    <TextBlock Text="Soporta MP4, WebM, MOV y otros formatos. Después elegís plantilla vertical y procesás con el API local."
+                               FontSize="13"
+                               Foreground="{StaticResource Brush.TextSecondary}"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Margin="0,0,0,28" />
+                    <Button Content="Seleccionar video"
+                            Style="{StaticResource PrimaryButton}"
+                            HorizontalAlignment="Center"
+                            MinWidth="240"
+                            Height="46"
+                            FontSize="14"
+                            Click="BrowseVideo_Click" />
+                </StackPanel>
+            </Border>
+
+            <!-- Editor principal -->
+            <Grid x:Name="EditorRoot" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" x:Name="EditorMainGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="320" />
+                        <ColumnDefinition x:Name="SidebarColumn" Width="260" MinWidth="200" MaxWidth="320" />
+                    </Grid.ColumnDefinitions>
+
+                    <ScrollViewer x:Name="MainScrollViewer"
+                                  Grid.Column="0"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Padding="20,16,12,8">
+                        <Grid x:Name="MainContentGrid"
+                              MinHeight="{Binding ViewportHeight, ElementName=MainScrollViewer}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" MinHeight="0" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel x:Name="MainHeaderSection" Grid.Row="0">
+                            <TextBlock Text="Video y salida"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource Brush.TextPrimary}"
+                                       Margin="0,0,0,10" />
+
+                            <Label Content="Archivo de entrada" Padding="0,0,0,4" />
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="VideoPathBox"
+                                         Grid.Column="0"
+                                         Margin="0,0,8,0"
+                                         Height="34"
+                                         VerticalContentAlignment="Center" />
+                                <Button Grid.Column="1"
+                                        Content="Examinar…"
+                                        Style="{StaticResource GhostButton}"
+                                        MinWidth="100"
+                                        Height="34"
+                                        Click="BrowseVideo_Click" />
+                            </Grid>
+
+                            <TextBlock Text="Vista previa horizontal (16:9)"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource Brush.TextPrimary}"
+                                       Margin="0,4,0,6" />
+                            <TextBlock Text="Video fuente a pantalla ancha. Los controles también sincronizan la vista vertical de la derecha."
+                                       FontSize="11"
+                                       Foreground="{StaticResource Brush.TextSecondary}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,10" />
+                            </StackPanel>
+
+                            <Grid x:Name="PlayerOptionsGrid"
+                                  Grid.Row="1"
+                                  Margin="0,0,0,8"
+                                  MinHeight="0"
+                                  VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="ColPlayer" Width="*" MinWidth="280" />
+                                    <ColumnDefinition x:Name="ColGap" Width="16" />
+                                    <ColumnDefinition x:Name="ColOptions" Width="280" MinWidth="200" MaxWidth="340" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Reproductor + controles -->
+                                <StackPanel x:Name="PlayerHostPanel" Grid.Column="0" Grid.Row="0">
+                                    <Grid x:Name="HorizontalPlayerHost"
+                                          HorizontalAlignment="Stretch"
+                                          MinHeight="120"
+                                          Margin="0,0,0,10"
+                                          SizeChanged="HorizontalPlayerHost_SizeChanged">
+                                        <Border CornerRadius="10"
+                                                ClipToBounds="True"
+                                                BorderBrush="{StaticResource Brush.Accent}"
+                                                BorderThickness="2"
+                                                Background="Black">
+                                            <MediaElement x:Name="HorizontalPreviewMedia"
+                                                          LoadedBehavior="Manual"
+                                                          UnloadedBehavior="Manual"
+                                                          Stretch="Uniform"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Stretch"
+                                                          Volume="0.85"
+                                                          ScrubbingEnabled="True"
+                                                          MediaOpened="PreviewMedia_MediaOpened"
+                                                          MediaEnded="PreviewMedia_MediaEnded"
+                                                          MediaFailed="PreviewMedia_MediaFailed" />
+                                        </Border>
+                                    </Grid>
+                                    <Grid x:Name="PlayerControlsGrid" HorizontalAlignment="Stretch" Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="100" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button x:Name="PreviewPlayBtn"
+                                                Grid.Column="0"
+                                                Content="▶"
+                                                Width="44"
+                                                Height="36"
+                                                Padding="0"
+                                                Style="{StaticResource GhostButton}"
+                                                Click="PreviewPlay_Click"
+                                                ToolTip="Reproducir / pausa (horizontal + vertical)" />
+                                        <Slider x:Name="PreviewTimelineSlider"
+                                                Grid.Column="1"
+                                                Minimum="0"
+                                                Maximum="1"
+                                                Value="0"
+                                                Height="24"
+                                                Margin="10,0,10,0"
+                                                VerticalAlignment="Center"
+                                                IsMoveToPointEnabled="True"
+                                                IsEnabled="False"
+                                                PreviewMouseLeftButtonDown="PreviewTimelineSlider_PreviewMouseLeftButtonDown"
+                                                PreviewMouseLeftButtonUp="PreviewTimelineSlider_PreviewMouseLeftButtonUp"
+                                                ValueChanged="PreviewTimelineSlider_ValueChanged" />
+                                        <TextBlock x:Name="PreviewTimeText"
+                                                   Grid.Column="2"
+                                                   MinWidth="88"
+                                                   Margin="0,0,12,0"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource Brush.TextSecondary}"
+                                                   Text="0:00 / 0:00"
+                                                   TextAlignment="Right" />
+                                        <TextBlock Grid.Column="3"
+                                                   Text="Vol."
+                                                   VerticalAlignment="Center"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource Brush.TextSecondary}"
+                                                   Margin="0,0,8,0" />
+                                        <Slider x:Name="PreviewVolumeSlider"
+                                                Grid.Column="4"
+                                                Minimum="0"
+                                                Maximum="1"
+                                                Value="0.85"
+                                                Height="24"
+                                                VerticalAlignment="Center"
+                                                TickFrequency="0.01"
+                                                IsSnapToTickEnabled="False"
+                                                ValueChanged="PreviewVolumeSlider_ValueChanged" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Opciones al lado del reproductor (o debajo en ventana estrecha) -->
+                                <StackPanel x:Name="OptionsPanel"
+                                            Grid.Column="2"
+                                            Grid.Row="0"
+                                            VerticalAlignment="Top">
+                                    <Label Content="Carpeta de salida" Padding="0,0,0,4" />
+                                    <TextBox x:Name="OutputDirBox"
+                                             Height="34"
+                                             Margin="0,0,0,6"
+                                             VerticalContentAlignment="Center" />
+                                    <Button Content="Carpeta…"
+                                            Style="{StaticResource GhostButton}"
+                                            MinWidth="100"
+                                            Height="34"
+                                            HorizontalAlignment="Left"
+                                            Margin="0,0,0,14"
+                                            Click="BrowseOutput_Click" />
+
+                                    <TextBlock Text="Formato del clip"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource Brush.TextPrimary}"
+                                               Margin="0,0,0,8" />
+                                    <ComboBox x:Name="ClipLayoutCombo"
+                                              Height="36"
+                                              VerticalContentAlignment="Center"
+                                              Margin="0,0,0,14"
+                                              SelectedIndex="0">
+                                        <ComboBoxItem Tag="vertical" Content="Vertical (9:16)" />
+                                        <ComboBoxItem Tag="horizontal" Content="Horizontal (16:9)" />
+                                        <ComboBoxItem Tag="both" Content="Ambos formatos" />
+                                    </ComboBox>
+
+                                    <CheckBox x:Name="BurnSubsCheckBox"
+                                              Content="Incrustar subtítulos en los clips"
+                                              IsChecked="True"
+                                              Margin="0,0,0,14"
+                                              VerticalContentAlignment="Center" />
+
+                                    <Button x:Name="ProcessOptionsButton"
+                                            Content="Procesar"
+                                            Style="{StaticResource PrimaryButton}"
+                                            MinWidth="140"
+                                            Height="40"
+                                            HorizontalAlignment="Stretch"
+                                            Click="Start_Click" />
+                                </StackPanel>
+                            </Grid>
+
+                            <local:CustomLayoutEditor x:Name="LayoutEditor"
+                                                      Grid.Row="2"
+                                                      Margin="0,0,0,10"
+                                                      Visibility="Collapsed" />
+
+                            <StackPanel x:Name="MainFooterSection"
+                                        Grid.Row="3"
+                                        Orientation="Horizontal"
+                                        Margin="0,4,0,4">
+                                <Button x:Name="StartButton"
+                                        Content="Proceder"
+                                        Style="{StaticResource PrimaryButton}"
+                                        MinWidth="140"
+                                        Height="40"
+                                        Margin="0,0,12,0"
+                                        Click="Start_Click" />
+                                <Button Content="Abrir carpeta de salida"
+                                        Style="{StaticResource GhostButton}"
+                                        Height="40"
+                                        Padding="16,0"
+                                        Margin="0,0,12,0"
+                                        Click="OpenOutput_Click" />
+                                <Ellipse x:Name="StatusIndicatorCircle"
+                                         Width="14"
+                                         Height="14"
+                                         VerticalAlignment="Center"
+                                         Stroke="#546E7A"
+                                         StrokeThickness="1"
+                                         Fill="#66BB6A"
+                                         ToolTip="Listo" />
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+
+                    <!-- Barra lateral plantillas -->
+                    <Border x:Name="SidebarPanel"
+                            Grid.Column="1"
+                            Background="#16161F"
+                            BorderBrush="{StaticResource Brush.BorderSubtle}"
+                            BorderThickness="1,0,0,0"
+                            Padding="16,16,16,12">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel HorizontalAlignment="Center" MinWidth="180">
+                            <TextBlock Text="Vista previa vertical"
+                                       FontWeight="SemiBold"
+                                       FontSize="15"
+                                       Foreground="{StaticResource Brush.TextPrimary}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       Margin="0,0,0,8" />
+                            <TextBlock x:Name="SidebarPreviewHint"
+                                       Text="Mismo tiempo que la vista horizontal; recorte centrado 9:16."
+                                       FontSize="11"
+                                       Foreground="{StaticResource Brush.TextSecondary}"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       MaxWidth="248"
+                                       Margin="0,0,0,10" />
+                            <Viewbox Stretch="Uniform"
+                                     StretchDirection="DownOnly"
+                                     HorizontalAlignment="Center"
+                                     MaxWidth="220"
+                                     Margin="0,0,0,8">
+                            <Border Width="142"
+                                    Height="252"
+                                    CornerRadius="10"
+                                    ClipToBounds="True"
+                                    BorderBrush="{StaticResource Brush.Accent}"
+                                    BorderThickness="2"
+                                    Background="Black">
+                                <Grid>
+                                    <Canvas x:Name="SidebarFullCropCanvas"
+                                            ClipToBounds="True"
+                                            SizeChanged="SidebarFullCropCanvas_SizeChanged">
+                                        <MediaElement x:Name="SidebarPreviewMedia"
+                                                      LoadedBehavior="Manual"
+                                                      UnloadedBehavior="Manual"
+                                                      Stretch="Fill"
+                                                      Volume="0"
+                                                      IsMuted="True"
+                                                      ScrubbingEnabled="True"
+                                                      IsHitTestVisible="False"
+                                                      MediaOpened="PreviewMedia_MediaOpened"
+                                                      MediaEnded="PreviewMedia_MediaEnded"
+                                                      MediaFailed="PreviewMedia_MediaFailed" />
+                                    </Canvas>
+                                    <Grid x:Name="SidebarCustomPreviewRoot"
+                                          Visibility="Collapsed">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="0.3*" />
+                                            <RowDefinition Height="0.7*" />
+                                        </Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                                                ClipToBounds="True"
+                                                Background="Black">
+                                            <Canvas x:Name="SidebarCamCanvas"
+                                                    SizeChanged="SidebarCropHost_SizeChanged">
+                                                <MediaElement x:Name="SidebarCamMedia"
+                                                              LoadedBehavior="Manual"
+                                                              UnloadedBehavior="Manual"
+                                                              Stretch="Fill"
+                                                              Volume="0"
+                                                              IsMuted="True"
+                                                              ScrubbingEnabled="True"
+                                                              IsHitTestVisible="False"
+                                                              MediaOpened="SidebarCropMedia_MediaOpened"
+                                                              MediaFailed="PreviewMedia_MediaFailed" />
+                                            </Canvas>
+                                        </Border>
+                                        <Border Grid.Row="1"
+                                                ClipToBounds="True"
+                                                Background="Black">
+                                            <Canvas x:Name="SidebarGameCanvas"
+                                                    SizeChanged="SidebarCropHost_SizeChanged">
+                                                <MediaElement x:Name="SidebarGameMedia"
+                                                              LoadedBehavior="Manual"
+                                                              UnloadedBehavior="Manual"
+                                                              Stretch="Fill"
+                                                              Volume="0"
+                                                              IsMuted="True"
+                                                              ScrubbingEnabled="True"
+                                                              IsHitTestVisible="False"
+                                                              MediaOpened="SidebarCropMedia_MediaOpened"
+                                                              MediaFailed="PreviewMedia_MediaFailed" />
+                                            </Canvas>
+                                        </Border>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                            </Viewbox>
+
+                            <StackPanel HorizontalAlignment="Center"
+                                        MaxWidth="248"
+                                        Margin="0,0,0,12">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center"
+                                            Margin="0,0,0,8">
+                                    <TextBlock Text="Plantillas"
+                                               FontWeight="SemiBold"
+                                               FontSize="15"
+                                               Foreground="{StaticResource Brush.TextPrimary}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0" />
+                                    <TextBlock VerticalAlignment="Center">
+                                        <Hyperlink Click="CambiarArea_Click"
+                                                   Foreground="{StaticResource Brush.Accent}"
+                                                   TextDecorations="None">
+                                            Cambiar área
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                                <TextBlock Text="Solo afecta clips verticales 9:16. Elegí cómo se apila el encuadre."
+                                           FontSize="11"
+                                           Foreground="{StaticResource Brush.TextSecondary}"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,14" />
+
+                            <Border x:Name="TplCardFull"
+                                    Tag="full"
+                                    Background="{StaticResource Brush.CardBg}"
+                                    BorderBrush="{StaticResource Brush.BorderSubtle}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="12"
+                                    Margin="0,0,0,8"
+                                    Cursor="Hand"
+                                    MouseLeftButtonDown="TplCard_MouseLeftButtonDown">
+                                <StackPanel>
+                                    <TextBlock Text="Total"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource Brush.TextPrimary}" />
+                                    <TextBlock Text="Pantalla completa, recorte centrado."
+                                               FontSize="11"
+                                               Foreground="{StaticResource Brush.TextSecondary}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border x:Name="TplCardSplit"
+                                    Tag="split_half"
+                                    Background="{StaticResource Brush.CardBg}"
+                                    BorderBrush="{StaticResource Brush.BorderSubtle}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="12"
+                                    Margin="0,0,0,8"
+                                    Cursor="Hand"
+                                    MouseLeftButtonDown="TplCard_MouseLeftButtonDown">
+                                <StackPanel>
+                                    <TextBlock Text="Mitad / mitad"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource Brush.TextPrimary}" />
+                                    <TextBlock Text="50% arriba y 50% abajo del mismo video."
+                                               FontSize="11"
+                                               Foreground="{StaticResource Brush.TextSecondary}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border x:Name="TplCardFaceTop"
+                                    Tag="face_top"
+                                    Background="{StaticResource Brush.CardBg}"
+                                    BorderBrush="{StaticResource Brush.BorderSubtle}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="12"
+                                    Margin="0,0,0,8"
+                                    Cursor="Hand"
+                                    MouseLeftButtonDown="TplCard_MouseLeftButtonDown">
+                                <StackPanel>
+                                    <TextBlock Text="Streamer arriba"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource Brush.TextPrimary}" />
+                                    <TextBlock Text="Franja tipo cámara arriba y contenido abajo (estilo Nexus)."
+                                               FontSize="11"
+                                               Foreground="{StaticResource Brush.TextSecondary}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border x:Name="TplCardCustom"
+                                    Tag="custom"
+                                    Background="{StaticResource Brush.CardBg}"
+                                    BorderBrush="{StaticResource Brush.BorderSubtle}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="12"
+                                    Margin="0,0,0,8"
+                                    Cursor="Hand"
+                                    MouseLeftButtonDown="TplCard_MouseLeftButtonDown">
+                                <StackPanel>
+                                    <TextBlock Text="Personalizado"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource Brush.TextPrimary}" />
+                                    <TextBlock Text="Definís rectángulos de cámara y contenido sobre un fotograma."
+                                               FontSize="11"
+                                               Foreground="{StaticResource Brush.TextSecondary}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+
+                            </StackPanel>
+
+                            <Border Margin="0,20,0,0"
+                                    Background="{StaticResource Brush.CardBg}"
+                                    BorderBrush="{StaticResource Brush.BorderSubtle}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="12"
+                                    HorizontalAlignment="Center"
+                                    MaxWidth="248">
+                                <StackPanel>
+                                    <TextBlock Text="Clips"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource Brush.TextPrimary}"
+                                               TextAlignment="Center" />
+                                    <TextBlock Text="Al terminar el trabajo, los clips quedan en la carpeta run_* dentro de la salida."
+                                               FontSize="11"
+                                               Foreground="{StaticResource Brush.TextSecondary}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Background="{StaticResource Brush.PanelRaised}"
+                        BorderBrush="{StaticResource Brush.BorderSubtle}"
+                        BorderThickness="0,1,0,0"
+                        Padding="20,10">
+                    <TextBlock x:Name="StatusBarText"
+                               Foreground="{StaticResource Brush.TextSecondary}"
+                               Text="Listo."
+                               VerticalAlignment="Center" />
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
