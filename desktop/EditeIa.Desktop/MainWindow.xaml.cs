@@ -813,7 +813,7 @@ public partial class MainWindow : Window
         };
 
         SetStartButtonsEnabled(false);
-        StatusBarText.Text = "Enviando trabajo…";
+        StatusBarText.Text = "Enviando video a la IA para análisis…";
 
         try
         {
@@ -869,7 +869,7 @@ public partial class MainWindow : Window
             if (status is null)
                 return;
 
-            StatusBarText.Text = $"{status.Status} — {status.Stage}";
+            StatusBarText.Text = FormatJobStatus(status.Status, status.Stage);
 
             if (status.Status is "completed" or "failed")
             {
@@ -903,6 +903,18 @@ public partial class MainWindow : Window
             // ignorar errores transitorios de red al sondear
         }
     }
+
+    private static string FormatJobStatus(string status, string stage) => stage switch
+    {
+        "extract_audio" => "Extrayendo audio del video…",
+        "transcribe" => "Transcribiendo voz con Whisper (IA)…",
+        "analyze_highlights" => "Analizando audio, texto y escenas para detectar highlights…",
+        "highlights" => "Analizando audio, texto y escenas para detectar highlights…",
+        "render_clips" => "Exportando clips detectados…",
+        "done" when status == "completed" => "Proceso completado.",
+        "starting" => "Iniciando análisis…",
+        _ => $"{status} — {stage}",
+    };
 
     private sealed class JobCreateDto
     {

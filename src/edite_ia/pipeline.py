@@ -101,10 +101,11 @@ def run_pipeline(
     utterances_json = work_dir / "utterances.json"
     _write_utterances_json(utterances, utterances_json)
 
-    stage("highlights")
+    stage("analyze_highlights")
     highlights: list[Highlight] = detect_highlights(
         audio_wav,
         utterances,
+        video_path=cfg.input_video,
         clip_length_sec=cfg.clip_length_sec,
         max_clips=cfg.max_clips,
         keywords=cfg.keywords,
